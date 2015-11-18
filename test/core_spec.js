@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { List, Map } from 'immutable';
 
-import { setEntries } from '../src/core';
+import { setEntries, next, vote } from '../src/core';
 
 describe('application logic', () => {
   describe('setEntries', () => {
@@ -17,5 +17,71 @@ describe('application logic', () => {
     });
   });
 
-  describe('vote', () => {});
+  describe('next', () => {
+
+    it('takes next two entries under vote', () => {
+      const state = Map({
+        entries: List.of('Trainspotting', '28 Days Later', 'Sunshine')
+      });
+
+      const nextState = next(state);
+
+      expect(nextState).to.equal(Map({
+        vote: Map({
+          pair: List.of('Trainspotting', '28 Days Later')
+        }),
+        entries: List.of('Sunshine')
+      }));
+    });
+  });
+
+  describe('vote', () => {
+
+    it('create a tally for voted entry', () => {
+      const state = Map({
+        vote: Map({
+          pair: List.of('Trainspotting', '28 Days Later')
+        }),
+        entries: List()
+      });
+
+      const nextState = vote(state, 'Trainspotting');
+
+      expect(nextState).to.equal(Map({
+        vote: Map({
+          pair: List.of('Trainspotting', '28 Days Later'),
+          tally: Map({
+            'Trainspotting': 1
+          })
+        }),
+        entries: List()
+      }));
+    });
+
+    it('adds to existing tally for the voted entry', () => {
+      const state = Map({
+        vote: Map({
+          pair: List.of('Trainspotting', '28 Days Later'),
+          tally: Map({
+            'Trainspotting': 2,
+            '28 Days Later': 2
+          })
+        }),
+        entries: List()
+      });
+
+      const nextState = vote(state, '28 Days Later');
+
+      expect(nextState).to.equal(Map({
+        vote: Map({
+          pair: List.of('Trainspotting', '28 Days Later'),
+          tally: Map({
+            'Trainspotting': 2,
+            '28 Days Later': 3
+          })
+        }),
+        entries: List()
+      }));
+    });
+  });
 });
