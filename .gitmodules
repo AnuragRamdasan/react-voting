@@ -1,0 +1,3 @@
+[submodule "voting-client"]
+	path = voting-client
+	url = ./voting-client
